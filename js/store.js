@@ -28,7 +28,6 @@ const Store = {
         try { this._cache[key] = JSON.parse(localStorage.getItem(key)) || []; }
         catch { this._cache[key] = []; }
       });
-      this.loadDemoData();
       return Promise.resolve();
     }
 
@@ -43,7 +42,6 @@ const Store = {
         } else {
           Object.values(this.KEYS).forEach(key => { this._cache[key] = []; });
         }
-        this.loadDemoData();
         resolve();
       });
     });
