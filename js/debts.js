@@ -12,6 +12,9 @@ const Debts = {
     const totalOwed = Store.getDebtsTotalOwed();
     const totalOwe = Store.getDebtsTotalOwe();
     const current = this.activeTab === 'owed' ? owed : owe;
+    const emptyText = this.activeTab === 'owed' ? 'Никто вам не должен' : 'Вы никому не должны';
+
+    const emptyState = `<div class="empty-state"><div class="empty-state__icon">🤝</div><div class="empty-state__title">Нет долгов</div><div class="empty-state__text">${emptyText}</div></div>`;
 
     const el = document.getElementById('page-debts');
     el.innerHTML = `
@@ -36,7 +39,7 @@ const Debts = {
       </div>
 
       <div id="debt-list" class="animate-fade-in-up stagger-3">
-        ${current.length ? current.map(d => this.renderItem(d)).join('') : '<div class="empty-state"><div class="empty-state__icon">🤝</div><div class="empty-state__title">Нет долгов</div><div class="empty-state__text">${this.activeTab === "owed" ? "Никто вам не должен" : "Вы никому не должны"}</div></div>'}
+        ${current.length ? current.map(d => this.renderItem(d)).join('') : emptyState}
       </div>
     `;
   },
