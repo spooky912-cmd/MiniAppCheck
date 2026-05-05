@@ -18,7 +18,8 @@
 .page.active { display: block; animation: fade-in-up var(--t-slow) var(--ease-out); }
 
 /* --- Tab Bar --- */
-.tab-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: var(--max-width); height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; justify-content: space-around; padding: 0 var(--space-sm); padding-bottom: env(safe-area-inset-bottom, 0px); background: rgba(14, 14, 16, 0.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-top: 1px solid var(--border-subtle); z-index: 100; }
+.tab-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: var(--max-width); height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-sm); padding-bottom: env(safe-area-inset-bottom, 0px); background: rgba(14, 14, 16, 0.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-top: 1px solid var(--border-subtle); z-index: 100; }
+.tab-group { flex: 1; display: flex; align-items: center; justify-content: space-around; }
 .tab-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--space-xs) var(--space-xs); border-radius: var(--radius-sm); transition: all var(--t-normal) var(--ease-out); color: var(--text-tertiary); min-width: 44px; position: relative; }
 .tab-item svg { width: 20px; height: 20px; transition: all var(--t-normal) var(--ease-out); }
 .tab-item span { font-size: 9px; font-weight: 500; transition: color var(--t-normal); }
