@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="FinTrack — умный финансовый помощник. Учёт доходов, расходов, бюджета и долгов.">
+  <meta name="theme-color" content="#0A0A0B">
+  <title>FinTrack — Финансовый помощник</title>
+
+  <!-- Telegram Web App SDK (MUST be first) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <!-- Background Decorations -->
+  <div class="bg-decoration">
+    <div class="bg-orb bg-orb--purple"></div>
+    <div class="bg-orb bg-orb--green"></div>
+    <div class="bg-orb bg-orb--blue"></div>
+  </div>
+
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header__title" id="header-title">FinTrack</h1>
+      <button class="header__btn" id="header-stats-btn" onclick="App.switchTab('stats')" title="Статистика">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+      <section class="page active" id="page-dashboard"></section>
+      <section class="page" id="page-transactions"></section>
+      <section class="page" id="page-budget"></section>
+      <section class="page" id="page-savings"></section>
+      <section class="page" id="page-debts"></section>
+      <section class="page" id="page-stats"></section>
+    </main>
+
+    <!-- Tab Bar -->
+    <nav class="tab-bar">
+      <button class="tab-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span>Главная</span>
+      </button>
+      <button class="tab-item" data-page="transactions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        <span>Операции</span>
+      </button>
+      <div class="tab-fab">
+        <button class="tab-fab__btn" id="fab-btn" title="Добавить операцию">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
+      <button class="tab-item" data-page="budget">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H2v7l6.29 6.29c.94.94 2.48.94 3.42 0l3.58-3.58c.94-.94.94-2.48 0-3.42L9 5Z"/><path d="M6 9.01V9"/>
+        </svg>
+        <span>Бюджет</span>
+      </button>
+      <button class="tab-item" data-page="savings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2"/><path d="M2 9.1C1.4 7.6 2 5.3 3.8 4.6L6 10"/><circle cx="14.5" cy="12.5" r=".5" fill="currentColor"/>
+        </svg>
+        <span>Копилка</span>
+      </button>
+      <button class="tab-item" data-page="debts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Долги</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Transaction Modal -->
+  <div class="modal-overlay" id="transaction-modal">
+    <div class="modal">
+      <div class="modal__handle"></div>
+      <div class="modal__title" id="txn-modal-title">Новая операция</div>
+
+      <div class="form-group">
+        <div class="toggle-group" id="txn-toggle">
+          <div class="toggle-item active--expense" data-type="expense" onclick="App.toggleTransactionType(this)">Расход</div>
+          <div class="toggle-item" data-type="income" onclick="App.toggleTransactionType(this)">Доход</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Сумма</label>
+        <input class="form-input" id="modal-amount" type="number" placeholder="0" min="0" step="any" inputmode="decimal">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Категория</label>
+        <select class="form-input" id="modal-category">
+          <option value="">Выберите категорию</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <input class="form-input" id="modal-description" type="text" placeholder="Необязательно">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Дата</label>
+        <input class="form-input" id="modal-date" type="date">
+      </div>
+
+      <div style="display: flex; gap: var(--space-sm); margin-top: var(--space-lg);">
+        <button class="btn btn--ghost btn--full" onclick="App.closeModal('transaction-modal')">Отмена</button>
+        <button class="btn btn--primary btn--full" onclick="Transactions.saveFromModal()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Modal -->
+  <div class="modal-overlay" id="budget-modal">
+    <div class="modal">
+      <div class="modal__handle"></div>
+      <div class="modal__title">Новый бюджет</div>
+
+      <div class="form-group">
+        <label class="form-label">Категория</label>
+        <select class="form-input" id="budget-category-select"></select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Лимит (₽)</label>
+        <input class="form-input" id="budget-limit-input" type="number" placeholder="0" min="0" inputmode="decimal">
+      </div>
+
+      <div style="display: flex; gap: var(--space-sm); margin-top: var(--space-lg);">
+        <button class="btn btn--ghost btn--full" onclick="App.closeModal('budget-modal')">Отмена</button>
+        <button class="btn btn--primary btn--full" onclick="Budget.saveFromModal()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debt Modal -->
+  <div class="modal-overlay" id="debt-modal">
+    <div class="modal">
+      <div class="modal__handle"></div>
+      <div class="modal__title">Новый долг</div>
+
+      <div class="form-group">
+        <label class="form-label">Тип</label>
+        <select class="form-input" id="debt-type-select">
+          <option value="owed">Мне должны</option>
+          <option value="owe">Я должен</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Имя</label>
+        <input class="form-input" id="debt-person-input" type="text" placeholder="Кто?">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Сумма (₽)</label>
+        <input class="form-input" id="debt-amount-input" type="number" placeholder="0" min="0" inputmode="decimal">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <input class="form-input" id="debt-desc-input" type="text" placeholder="За что?">
+      </div>
+
+      <div style="display: flex; gap: var(--space-sm); margin-top: var(--space-lg);">
+        <button class="btn btn--ghost btn--full" onclick="App.closeModal('debt-modal')">Отмена</button>
+        <button class="btn btn--primary btn--full" onclick="Debts.saveFromModal()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="payment-modal">
+    <div class="modal">
+      <div class="modal__handle"></div>
+      <div class="modal__title">Внести платёж</div>
+      <input type="hidden" id="pay-debt-id">
+
+      <div class="form-group">
+        <label class="form-label">Сумма платежа (₽)</label>
+        <input class="form-input" id="pay-amount-input" type="number" placeholder="0" min="0" inputmode="decimal">
+      </div>
+
+      <div style="display: flex; gap: var(--space-sm); margin-top: var(--space-lg);">
+        <button class="btn btn--ghost btn--full" onclick="App.closeModal('payment-modal')">Отмена</button>
+        <button class="btn btn--primary btn--full" onclick="Debts.savePayment()">Внести</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saving Goal Modal -->
+  <div class="modal-overlay" id="saving-modal">
+    <div class="modal">
+      <div class="modal__handle"></div>
+      <div class="modal__title">Новая цель</div>
+
+      <div class="form-group">
+        <label class="form-label">Иконка</label>
+        <div id="saving-icon-picker" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+        <input type="hidden" id="saving-icon-value">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Название</label>
+        <input class="form-input" id="saving-name-input" type="text" placeholder="На что копим?">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Целевая сумма (₽)</label>
+        <input class="form-input" id="saving-target-input" type="number" placeholder="0" min="0" inputmode="decimal">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание</label>
+        <input class="form-input" id="saving-desc-input" type="text" placeholder="Необязательно">
+      </div>
+
+      <div style="display: flex; gap: var(--space-sm); margin-top: var(--space-lg);">
+        <button class="btn btn--ghost btn--full" onclick="App.closeModal('saving-modal')">Отмена</button>
+        <button class="btn btn--primary btn--full" onclick="Savings.saveFromModal()">Создать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saving Deposit/Withdraw Modal -->
+  <div class="modal-overlay" id="saving-action-modal">
+    <div class="modal">
+      <div class="modal__handle"></div>
+      <div class="modal__title" id="saving-action-title">Внести</div>
+      <input type="hidden" id="saving-action-id">
+      <input type="hidden" id="saving-action-type">
+
+      <div class="form-group">
+        <label class="form-label">Сумма (₽)</label>
+        <input class="form-input" id="saving-action-amount" type="number" placeholder="0" min="0" inputmode="decimal">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Заметка</label>
+        <input class="form-input" id="saving-action-note" type="text" placeholder="Необязательно">
+      </div>
+
+      <div style="display: flex; gap: var(--space-sm); margin-top: var(--space-lg);">
+        <button class="btn btn--ghost btn--full" onclick="App.closeModal('saving-action-modal')">Отмена</button>
+        <button class="btn btn--primary btn--full" onclick="Savings.saveAction()">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/transactions.js"></script>
+  <script src="js/budget.js"></script>
+  <script src="js/savings.js"></script>
+  <script src="js/debts.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
